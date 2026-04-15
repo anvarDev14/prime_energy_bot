@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  bot:
+    build: .
+    container_name: prime_energy_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data        # SQLite database
+      - ./logs:/app/logs        # Log fayllari
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:////app/data/prime_energy.db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Production uchun PostgreSQL qo'shish:
+# (requirements.txt ga asyncpg qo'shing va DATABASE_URL ni o'zgartiring)
+#
+#  db:
+#    image: postgres:15-alpine
+#    container_name: prime_energy_db
+#    restart: unless-stopped
+#    environment:
+#      POSTGRES_DB: prime_energy
+#      POSTGRES_USER: bot
+#      POSTGRES_PASSWORD: strong_password_here
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#
+#volumes:
+#  postgres_data:
