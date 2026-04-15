@@ -16,12 +16,12 @@ def _btn(text: str, callback_data: str, style: str = None) -> InlineKeyboardButt
 def admin_main_menu() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     builder.row(
-        KeyboardButton(text="✏️ Post Yaratish"),
+        KeyboardButton(text="🟡 Post Yaratish"),
         KeyboardButton(text="📊 Statistika"),
     )
     builder.row(
         KeyboardButton(text="📢 Kanalga Post"),
-        KeyboardButton(text="📋 Vazifalar"),
+        KeyboardButton(text="🔵 Vazifalar"),
     )
     builder.row(
         KeyboardButton(text="⚙️ Sozlamalar"),

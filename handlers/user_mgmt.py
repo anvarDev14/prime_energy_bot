@@ -183,7 +183,7 @@ async def process_broadcast(message: Message, state: FSMContext):
         return
 
     broadcast_text = message.text
-    await state.clear()
+    await state.update_data(broadcast_text=broadcast_text)
 
     # Confirm keyboard
     builder = InlineKeyboardBuilder()
@@ -202,20 +202,16 @@ async def process_broadcast(message: Message, state: FSMContext):
         reply_markup=builder.as_markup()
     )
 
-    # Xabarni saqlash (state da)
-    # aslida FSMContext yopilgan, storage da saqlaymiz
-    import json
-    await message.bot.session.connector  # just to keep session alive
-    # Broadcast textni admin message sifatida saqlaymiz
-    setattr(message.bot, '_broadcast_text', broadcast_text)
-
 
 @router.callback_query(F.data == "broadcast:confirm")
-async def confirm_broadcast(callback: CallbackQuery):
+async def confirm_broadcast(callback: CallbackQuery, state: FSMContext):
     if not is_admin(callback.from_user.id):
         return
 
-    broadcast_text = getattr(callback.bot, '_broadcast_text', None)
+    data = await state.get_data()
+    broadcast_text = data.get("broadcast_text")
+    await state.clear()
+
     if not broadcast_text:
         await callback.answer("❌ Xabar topilmadi, qayta yuboring")
         return
@@ -260,12 +256,10 @@ async def confirm_broadcast(callback: CallbackQuery):
         parse_mode="HTML",
         reply_markup=admin_main_menu()
     )
-    delattr(callback.bot, '_broadcast_text')
 
 
 @router.callback_query(F.data == "broadcast:cancel")
-async def cancel_broadcast(callback: CallbackQuery):
+async def cancel_broadcast(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
     await callback.answer("🚫 Bekor qilindi")
     await callback.message.edit_text("🚫 Broadcast bekor qilindi.")
-    if hasattr(callback.bot, '_broadcast_text'):
-        delattr(callback.bot, '_broadcast_text')
